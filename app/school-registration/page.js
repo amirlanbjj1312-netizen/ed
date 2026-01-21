@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabase } from "@/lib/supabaseClient";
 
 const emptyLogin = { email: "", password: "" };
 
@@ -27,6 +27,7 @@ export default function SchoolRegistrationPage() {
   const profileKey = useMemo(() => user?.id || "guest", [user?.id]);
 
   useEffect(() => {
+    const supabase = getSupabase();
     if (!supabase) return;
     supabase.auth.getSession().then(({ data }) => {
       setSession(data?.session ?? null);
@@ -40,6 +41,7 @@ export default function SchoolRegistrationPage() {
   const handleLogin = async (event) => {
     event.preventDefault();
     setLoginStatus("");
+    const supabase = getSupabase();
     if (!supabase) {
       setLoginStatus("Supabase is not configured yet.");
       return;
@@ -61,6 +63,7 @@ export default function SchoolRegistrationPage() {
   };
 
   const handleLogout = async () => {
+    const supabase = getSupabase();
     if (!supabase) return;
     await supabase.auth.signOut();
   };
