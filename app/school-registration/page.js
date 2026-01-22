@@ -71,6 +71,15 @@ export default function SchoolRegistrationPage() {
   const handleEcpUpload = async (event) => {
     event.preventDefault();
     setEcpStatus("");
+    const supabase = getSupabase();
+    if (!supabase) {
+      setEcpStatus("Supabase is not configured yet.");
+      return;
+    }
+    if (!user) {
+      setEcpStatus("Sign in to upload the ECP.");
+      return;
+    }
     if (!ecpFile) {
       setEcpStatus("Please attach your .p12 or .pfx file.");
       return;
@@ -80,12 +89,29 @@ export default function SchoolRegistrationPage() {
       return;
     }
     setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          ecpStatus: "uploaded",
+          verificationStatus: "submitted",
+          ecpFileName: ecpFile.name,
+          ecpUploadedAt: new Date().toISOString(),
+        },
+      });
+      if (error) {
+        throw error;
+      }
+      setEcpFile(null);
+      setEcpPassword("");
       setEcpStatus(
-        "E-signature uploaded. We will verify it and unlock your school profile."
+        "E-signature uploaded. You can now log in on the phone to continue."
       );
-    }, 900);
+    } catch (err) {
+      setEcpStatus(err?.message ?? "Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
