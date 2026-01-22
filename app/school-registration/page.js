@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./page.module.css";
 import { getSupabase } from "@/lib/supabaseClient";
+import { useLocale } from "@/lib/locale";
 
 const emptyLogin = { email: "", password: "" };
 
@@ -15,6 +16,7 @@ const Field = ({ label, hint, children }) => (
 );
 
 export default function SchoolRegistrationPage() {
+  const { locale, setLocale, t } = useLocale();
   const [session, setSession] = useState(null);
   const [login, setLogin] = useState(emptyLogin);
   const [loginStatus, setLoginStatus] = useState("");
@@ -43,12 +45,12 @@ export default function SchoolRegistrationPage() {
     setLoginStatus("");
     const supabase = getSupabase();
     if (!supabase) {
-      setLoginStatus("Supabase is not configured yet.");
+      setLoginStatus(t("school.supabaseMissing"));
       return;
     }
     const email = login.email.trim().toLowerCase();
     if (!email || !login.password) {
-      setLoginStatus("Enter email and password.");
+      setLoginStatus(t("school.loginMissing"));
       return;
     }
     const { error } = await supabase.auth.signInWithPassword({
@@ -59,7 +61,7 @@ export default function SchoolRegistrationPage() {
       setLoginStatus(error.message);
       return;
     }
-    setLoginStatus("Signed in successfully.");
+    setLoginStatus(t("school.loginSuccess"));
   };
 
   const handleLogout = async () => {
@@ -73,19 +75,19 @@ export default function SchoolRegistrationPage() {
     setEcpStatus("");
     const supabase = getSupabase();
     if (!supabase) {
-      setEcpStatus("Supabase is not configured yet.");
+      setEcpStatus(t("school.supabaseMissing"));
       return;
     }
     if (!user) {
-      setEcpStatus("Sign in to upload the ECP.");
+      setEcpStatus(t("school.ecpSigninRequired"));
       return;
     }
     if (!ecpFile) {
-      setEcpStatus("Please attach your .p12 or .pfx file.");
+      setEcpStatus(t("school.ecpMissing"));
       return;
     }
     if (ecpPassword.trim().length < 6) {
-      setEcpStatus("Password must be at least 6 characters.");
+      setEcpStatus(t("school.ecpPassShort"));
       return;
     }
     setIsUploading(true);
@@ -104,11 +106,9 @@ export default function SchoolRegistrationPage() {
       }
       setEcpFile(null);
       setEcpPassword("");
-      setEcpStatus(
-        "E-signature uploaded. You can now log in on the phone to continue."
-      );
+      setEcpStatus(t("school.ecpUploaded"));
     } catch (err) {
-      setEcpStatus(err?.message ?? "Upload failed. Please try again.");
+      setEcpStatus(err?.message ?? t("school.ecpFailed"));
     } finally {
       setIsUploading(false);
     }
@@ -116,44 +116,59 @@ export default function SchoolRegistrationPage() {
 
   return (
     <div className={styles.page}>
+      <div className={styles.localeToggle}>
+        <button
+          type="button"
+          className={`${styles.localeButton} ${
+            locale === "ru" ? styles.localeActive : ""
+          }`}
+          onClick={() => setLocale("ru")}
+        >
+          RU
+        </button>
+        <button
+          type="button"
+          className={`${styles.localeButton} ${
+            locale === "en" ? styles.localeActive : ""
+          }`}
+          onClick={() => setLocale("en")}
+        >
+          EN
+        </button>
+      </div>
       <div className={styles.grid}>
         <aside className={styles.info}>
-          <div className={styles.tag}>Desktop step</div>
-          <h1>Complete your school profile.</h1>
-          <p>
-            Use the same email you confirmed on your phone. This step collects
-            the E-signature so we can verify the school.
-          </p>
+          <div className={styles.tag}>{t("school.tag")}</div>
+          <h1>{t("school.title")}</h1>
+          <p>{t("school.lede")}</p>
           <ul>
-            <li>Verified email unlocks the form.</li>
-            <li>Upload the school ECP on desktop.</li>
-            <li>The mobile profile stays the main source of data.</li>
+            <li>{t("school.bullet1")}</li>
+            <li>{t("school.bullet2")}</li>
+            <li>{t("school.bullet3")}</li>
           </ul>
-          <div className={styles.note}>
-            Need help? Email support@edumap.kz or contact your moderator.
-          </div>
+          <div className={styles.note}>{t("school.note")}</div>
         </aside>
 
         <section className={styles.content}>
           <div className={styles.card}>
             <header>
-              <h2>Account</h2>
-              <p>Sign in to continue the registration.</p>
+              <h2>{t("school.account")}</h2>
+              <p>{t("school.accountHint")}</p>
             </header>
             {user ? (
               <div className={styles.session}>
                 <div>
                   <strong>{user.email}</strong>
-                  <span>Signed in</span>
+                  <span>{t("school.signedIn")}</span>
                 </div>
                 <button className={styles.ghost} onClick={handleLogout}>
-                  Sign out
+                  {t("school.signOut")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleLogin} className={styles.loginForm}>
                 <label>
-                  Email
+                  {t("school.email")}
                   <input
                     type="email"
                     value={login.email}
@@ -167,7 +182,7 @@ export default function SchoolRegistrationPage() {
                   />
                 </label>
                 <label>
-                  Password
+                  {t("school.password")}
                   <input
                     type="password"
                     value={login.password}
@@ -181,7 +196,7 @@ export default function SchoolRegistrationPage() {
                   />
                 </label>
                 <button className={styles.primary} type="submit">
-                  Sign in
+                  {t("school.signIn")}
                 </button>
                 {loginStatus ? <p className={styles.status}>{loginStatus}</p> : null}
               </form>
@@ -190,22 +205,19 @@ export default function SchoolRegistrationPage() {
 
           <div className={styles.card}>
             <header>
-              <h2>E-signature (ECP)</h2>
-              <p>
-                Upload the school certificate file and enter the password to
-                submit for verification.
-              </p>
+              <h2>{t("school.ecpTitle")}</h2>
+              <p>{t("school.ecpHint")}</p>
             </header>
             <form onSubmit={handleEcpUpload} className={styles.form}>
               <div className={styles.actions}>
-                <Field label="Certificate file (.p12 / .pfx)">
+                <Field label={t("school.ecpFile")}>
                   <input
                     type="file"
                     accept=".p12,.pfx"
                     onChange={(event) => setEcpFile(event.target.files?.[0] || null)}
                   />
                 </Field>
-                <Field label="Password">
+                <Field label={t("school.ecpPassword")}>
                   <input
                     type="password"
                     value={ecpPassword}
@@ -217,10 +229,10 @@ export default function SchoolRegistrationPage() {
 
               <div className={styles.actions}>
                 <button className={styles.primary} type="submit" disabled={isUploading}>
-                  {isUploading ? "Uploading..." : "Upload ECP"}
+                  {isUploading ? t("school.ecpUploading") : t("school.ecpButton")}
                 </button>
                 <button className={styles.ghost} type="button">
-                  Need help?
+                  {t("school.needHelp")}
                 </button>
               </div>
 

@@ -2,6 +2,33 @@
   min-height: 100vh;
   background: linear-gradient(180deg, #786aff 0%, #4fccff 100%);
   padding: 64px 24px 80px;
+  position: relative;
+}
+
+.localeToggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.localeButton {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.85);
+  color: #1b2b6b;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.localeActive {
+  background: #1b2b6b;
+  color: white;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .grid {
@@ -204,5 +231,10 @@
   }
   .card {
     padding: 22px;
+  }
+  .localeToggle {
+    position: static;
+    justify-content: flex-end;
+    margin-bottom: 16px;
   }
 }
