@@ -30,6 +30,11 @@ export default function SchoolRegistrationPage() {
     process.env.NEXT_PUBLIC_ADMIN_SITE_URL || "https://edumap-admin.vercel.app/login";
   const appDeepLink = "edumap://";
 
+  const tSafe = (key, fallback) => {
+    const value = t(key);
+    return value === key ? fallback : value;
+  };
+
   const user = session?.user;
   const profileKey = useMemo(() => user?.id || "guest", [user?.id]);
   const hasUploadedEcp =
@@ -251,11 +256,26 @@ export default function SchoolRegistrationPage() {
             </form>
             {hasUploadedEcp ? (
               <div className={styles.nextSteps}>
-                <h3>{t("school.nextStepsTitle")}</h3>
-                <p>{t("school.nextStepsHint")}</p>
+                <h3>
+                  {tSafe(
+                    "school.nextStepsTitle",
+                    locale === "ru" ? "Как продолжить" : "Next steps"
+                  )}
+                </h3>
+                <p>
+                  {tSafe(
+                    "school.nextStepsHint",
+                    locale === "ru"
+                      ? "Выберите, где удобно закончить заполнение данных: в приложении или на сайте."
+                      : "Choose where you want to complete the school profile: in the app or on the website."
+                  )}
+                </p>
                 <div className={styles.actions}>
                   <a className={styles.primary} href={appDeepLink}>
-                    {t("school.continueApp")}
+                    {tSafe(
+                      "school.continueApp",
+                      locale === "ru" ? "Продолжить в приложении" : "Continue in the app"
+                    )}
                   </a>
                   <a
                     className={styles.ghost}
@@ -263,7 +283,10 @@ export default function SchoolRegistrationPage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {t("school.continueWeb")}
+                    {tSafe(
+                      "school.continueWeb",
+                      locale === "ru" ? "Продолжить на сайте" : "Continue on the website"
+                    )}
                   </a>
                 </div>
               </div>

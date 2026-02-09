@@ -198,6 +198,35 @@
   font-size: 14px;
 }
 
+.nextSteps {
+  margin-top: 20px;
+  background: rgba(76, 111, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.nextSteps h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.nextSteps p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.nextSteps .actions {
+  justify-content: flex-start;
+}
+
+.nextSteps .actions a {
+  flex: 1 1 180px;
+  text-align: center;
+}
+
 .session {
   display: flex;
   justify-content: space-between;
@@ -236,5 +265,14 @@
     position: static;
     justify-content: flex-end;
     margin-bottom: 16px;
+  }
+
+  .nextSteps .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nextSteps .actions a {
+    width: 100%;
   }
 }
