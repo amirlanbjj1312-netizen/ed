@@ -24,9 +24,19 @@ export default function SchoolRegistrationPage() {
   const [ecpPassword, setEcpPassword] = useState("");
   const [ecpStatus, setEcpStatus] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [ecpUploaded, setEcpUploaded] = useState(false);
+
+  const adminSiteUrl =
+    process.env.NEXT_PUBLIC_ADMIN_SITE_URL || "https://edumap-admin.vercel.app/login";
+  const appDeepLink = "edumap://";
 
   const user = session?.user;
   const profileKey = useMemo(() => user?.id || "guest", [user?.id]);
+  const hasUploadedEcp =
+    ecpUploaded ||
+    user?.user_metadata?.ecpStatus === "uploaded" ||
+    user?.user_metadata?.verificationStatus === "submitted" ||
+    user?.user_metadata?.verificationStatus === "approved";
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -107,6 +117,7 @@ export default function SchoolRegistrationPage() {
       setEcpFile(null);
       setEcpPassword("");
       setEcpStatus(t("school.ecpUploaded"));
+      setEcpUploaded(true);
     } catch (err) {
       setEcpStatus(err?.message ?? t("school.ecpFailed"));
     } finally {
@@ -238,6 +249,25 @@ export default function SchoolRegistrationPage() {
 
               {ecpStatus ? <p className={styles.status}>{ecpStatus}</p> : null}
             </form>
+            {hasUploadedEcp ? (
+              <div className={styles.nextSteps}>
+                <h3>{t("school.nextStepsTitle")}</h3>
+                <p>{t("school.nextStepsHint")}</p>
+                <div className={styles.actions}>
+                  <a className={styles.primary} href={appDeepLink}>
+                    {t("school.continueApp")}
+                  </a>
+                  <a
+                    className={styles.ghost}
+                    href={adminSiteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {t("school.continueWeb")}
+                  </a>
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
